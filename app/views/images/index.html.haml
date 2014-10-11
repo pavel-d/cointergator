@@ -1,0 +1,12 @@
+%h3 Docker images:
+%ol
+  - @images.each do |image|
+    %li
+      = link_to image.id, image_path(image)
+      %dl
+        %dt Created
+        %dd= image.info['Created']
+        %dt Tags
+        %dd
+          [#{image.info['RepoTags'].join ', '}]
+      = link_to 'Destroy', image_path(image), method: :delete, class: 'btn btn-xs btn-danger'

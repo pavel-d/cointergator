@@ -1,0 +1,56 @@
+%h2= @project.name
+%p
+  %strong Description:
+  = @project.description
+%p
+  %strong Repo url:
+  = @project.repository.remote_url
+%p
+  %strong Docker options:
+  = @project.docker_options
+
+- if @project.repository && @project.repository.cloned?
+  %p
+    %strong Last commit:
+    = @project.repository.git.head.target.message
+    %i= @project.repository.git.head.target_id
+  = link_to glyphicon('glyphicon-refresh', before_text: 'Refresh repository'), pull_project_repository_path(@project, @project.repository.id), class: 'btn btn-default', method: :post
+  %div
+  %h3 Branches
+  %ul
+    - @project.repository.git.branches.each_name(:remote).sort.each do |branch_name|
+      %li
+        = branch_name
+        = link_to 'Run', project_containers_path(@project, container: { branch_name: branch_name }), class: 'btn btn-success btn-xs', method: :post
+- else
+  %p We are cloning your repository. That can take few seconds.
+  .progress
+    .progress-bar.progress-bar-info.progress-bar-striped.active{:role => "progressbar", :style => "width: 100%"}   
+
+- if @project.containers.any?
+  %div
+    %h3 Containers
+    - @project.containers.each do |container|
+      .panel.panel-default
+        .panel-heading
+          = container.name
+          &nbsp;
+          .pull-right
+            = button_to 'Destroy', project_container_path(@project, container), method: :delete, class: 'btn btn-danger btn-xs'
+        .panel-body
+          - if container.ready?
+            - container.urls.each do |url|
+              %p= link_to url, url, target: '_blank'
+            %dl
+              %dt Image ID
+              %dd= container.image_id
+          - else
+            %p Please wait. We are building a container for your app. That can take few minutes.
+            .progress
+              .progress-bar.progress-bar-info.progress-bar-striped.active{:role => "progressbar", :style => "width: 100%"}        
+          %dl
+            %dt Branch
+            %dd= container.branch_name
+
+= link_to 'Edit', edit_project_path(@project)
+= link_to 'Back', projects_path

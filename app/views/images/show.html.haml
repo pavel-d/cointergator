@@ -1,0 +1,6 @@
+%h2= @image.id
+%dl
+  - @image.info.each_pair do |key, value|
+    - unless value.is_a?(String) && value.empty?
+      %dt= key
+      %dd= value
