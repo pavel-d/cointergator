@@ -2,14 +2,14 @@
 #
 # Table name: containers
 #
-#  id           :integer          not null, primary key
-#  image_id     :string
-#  container_id :string
-#  name         :string
-#  branch_name  :string
-#  project_id   :integer
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
+#  id                  :integer          not null, primary key
+#  image_id            :string
+#  docker_container_id :string
+#  name                :string
+#  branch_name         :string
+#  project_id          :integer
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
 #
 
 class Container < ActiveRecord::Base
@@ -17,7 +17,8 @@ class Container < ActiveRecord::Base
   has_one :repository, through: :project
 
   after_commit   :setup_container, on: :create
-  before_destroy :kill_container, :if => proc { ready? }
+  before_destroy :destroy_container, :if => proc { ready? }
+  before_destroy :delete_slug
 
   def ready?
     !!docker_container_id
@@ -41,6 +42,7 @@ class Container < ActiveRecord::Base
   end
 
   def urls
+    return [] unless ports
     ports.map { |port| "http://#{ip.to_s}:#{port.join[/\d+/]}" }
   end
 
@@ -48,18 +50,28 @@ class Container < ActiveRecord::Base
     ready? ? docker_container.info : {}
   end
 
-  def kill_container
-    begin
-      docker_container.kill
-    rescue Docker::Error::NotFoundError => e
-      # Already destroyed
-      true
-    end
+  def slug_name
+    "#{project.name}_#{id}.tgz"
+  end
+
+  def slug_path
+    @slug_path ||= [ slug_dir, slug_name ].join '/'
+  end
+
+  def slug_dir
+    [ Cointegrator::Application.config.slugs_path, id ].join '/'
   end
 
   private
+    def destroy_container
+      Containers::DestroyerJob.perform_later self
+    end
+
+    def delete_slug
+      FileUtils.rm_rf slug_dir
+    end
 
     def setup_container
-      Docker::ContainerBuilderJob.perform_later self
+      Containers::SlugBuilderJob.perform_later self
     end
 end

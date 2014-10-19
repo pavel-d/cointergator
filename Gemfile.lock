@@ -60,12 +60,12 @@ GEM
     connection_pool (2.0.0)
     debug_inspector (0.0.2)
     debugger-linecache (1.2.0)
-    docker-api (1.13.4)
+    docker-api (1.13.6)
       archive-tar-minitar
       excon (>= 0.38.0)
       json
     erubis (2.7.0)
-    excon (0.39.6)
+    excon (0.40.0)
     execjs (2.2.1)
     globalid (0.3.0)
       activesupport (>= 4.1.0)
@@ -187,7 +187,7 @@ DEPENDENCIES
   bootstrap-sass (~> 3.2.0)
   byebug
   coffee-rails (~> 4.0.0)
-  docker-api
+  docker-api (~> 1.13.5)
   haml-rails (~> 0.5.3)
   jbuilder (~> 2.0)
   jquery-rails (~> 4.0.0.beta2)

@@ -21,8 +21,14 @@ module Cointegrator
     # config.i18n.default_locale = :de
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
-    config.active_record.raise_in_transactional_callbacks = true
+    
+    Rails.application.configure do
+        config.active_record.raise_in_transactional_callbacks = true
+        config.active_job.queue_adapter = :sidekiq
 
-    Rails.application.config.active_job.queue_adapter = :sidekiq
+        config.slugs_path = 'data/slugs'
+        config.repos_path = 'data/repos'
+    end
+    
   end
 end

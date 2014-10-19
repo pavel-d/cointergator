@@ -39,7 +39,6 @@ ActiveRecord::Schema.define(version: 20141001094946) do
   create_table "repositories", force: true do |t|
     t.integer  "project_id"
     t.string   "remote_url"
-    t.string   "local_path"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

@@ -5,7 +5,6 @@
 #  id         :integer          not null, primary key
 #  project_id :integer
 #  remote_url :string
-#  local_path :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
@@ -16,16 +15,16 @@ class Repository < ActiveRecord::Base
 
   belongs_to :project
 
-  def clone
-    dir = Rails.root.join 'repos', id.to_s, project.name
-  
-    Rugged::Repository.clone_at(remote_url, dir.to_s)
+  def clone  
+    Rugged::Repository.clone_at(remote_url, local_path)
+  end
 
-    update(local_path: dir)
+  def local_path
+    @local_path ||= [ Cointegrator::Application.config.repos_path, id.to_s, project.name ].join '/'
   end
 
   def cloned?
-    !!local_path
+    Pathname.new(local_path + '/.git/HEAD').exist?
   end
 
   def clone_async
@@ -33,7 +32,7 @@ class Repository < ActiveRecord::Base
   end
 
   def git
-    return nil unless local_path
+    return nil unless cloned?
     @git ||= Rugged::Repository.new(local_path)
   end
 

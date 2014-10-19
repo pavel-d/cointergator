@@ -34,7 +34,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
-gem 'docker-api', :require => 'docker'
+gem 'docker-api', '~> 1.13.5', :require => 'docker'
 gem 'rugged', '~> 0.21.0'
 
 gem 'sidekiq', '~> 3.2.5'
